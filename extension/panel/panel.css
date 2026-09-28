@@ -1,0 +1,365 @@
+/* The extension's action popup. Its own page, not injected anywhere, so
+   tokens sit on :root. See docs/build-contract-v2.md, "Popup copy".
+   Palette matches the overlay: a gold accent, Hanken Grotesk when the
+   browser already has it cached from the overlay page, system font
+   otherwise, light and dark via prefers-color-scheme. */
+
+:root {
+  color-scheme: light;
+  --wmj-gold: #F5C518;
+  --wmj-gold-ink: #15171C;
+  --wmj-gold-tint: rgba(245, 197, 24, 0.18);
+  --wmj-ink: #15171C;
+  --wmj-ink-2: #4A4F5B;
+  --wmj-ink-3: #61666F;
+  --wmj-surface: #FBFAF7;
+  --wmj-bg: #FAF9F5;
+  --wmj-line: rgba(22, 24, 29, 0.12);
+  --wmj-line-2: rgba(22, 24, 29, 0.2);
+  accent-color: var(--wmj-gold);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --wmj-ink: #F2F0EB;
+    --wmj-ink-2: #C0C3CA;
+    --wmj-ink-3: #A3A7B0;
+    --wmj-surface: #202228;
+    --wmj-bg: #17181C;
+    --wmj-line: rgba(255, 255, 255, 0.14);
+    --wmj-line-2: rgba(255, 255, 255, 0.22);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body.wmj-panel {
+  width: 360px;
+  padding: 14px;
+  font-family: "Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--wmj-ink);
+  background: var(--wmj-bg);
+  overflow-x: hidden;
+}
+
+.wmj-panel ::selection {
+  background: var(--wmj-gold-tint);
+  color: var(--wmj-ink);
+}
+
+.wmj-panel-title {
+  margin: 0 0 8px;
+  font-weight: 700;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wmj-panel-title img {
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
+}
+
+.wmj-section {
+  margin-top: 14px;
+}
+
+.wmj-section-first {
+  margin-top: 8px;
+}
+
+.wmj-section-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.wmj-section h2 {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.wmj-saved {
+  color: var(--wmj-ink-2);
+  font-weight: 600;
+  font-size: 0.85em;
+  min-height: 1em;
+}
+
+.wmj-helper {
+  margin: 3px 0 0;
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--wmj-ink-2);
+}
+
+/* Label and control sit on one line: the popup is one screen tall, and a
+   short field like these does not need a line of its own for the label. */
+.wmj-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.wmj-field-label {
+  flex: 0 0 auto;
+  color: var(--wmj-ink);
+}
+
+.wmj-field input,
+.wmj-field select {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 150px;
+  padding: 5px 8px;
+  font: inherit;
+  color: var(--wmj-ink);
+  background: var(--wmj-surface);
+  border: 1px solid var(--wmj-line);
+  border-radius: 8px;
+  caret-color: var(--wmj-gold-ink);
+}
+
+.wmj-field input:hover,
+.wmj-field select:hover {
+  border-color: var(--wmj-line-2);
+}
+
+.wmj-field input:focus-visible,
+.wmj-field select:focus-visible {
+  outline: 2px solid var(--wmj-gold);
+  outline-offset: 2px;
+}
+
+.wmj-field input:disabled,
+.wmj-field select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.wmj-slider-row {
+  /* Fixed label column so every slider starts at the same x, whatever the label length. */
+  display: grid;
+  grid-template-columns: 9.5em minmax(0, 1fr) 1.4em;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.wmj-slider-row:first-of-type {
+  margin-top: 6px;
+}
+
+.wmj-slider-label {
+  min-width: 0;
+  color: var(--wmj-ink);
+}
+
+.wmj-slider {
+  min-width: 0;
+  width: 100%;
+  margin: 0;
+  accent-color: var(--wmj-gold);
+  cursor: pointer;
+}
+
+.wmj-slider:focus-visible {
+  outline: 2px solid var(--wmj-gold);
+  outline-offset: 3px;
+}
+
+.wmj-slider-value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--wmj-ink);
+}
+
+.wmj-primary-btn {
+  width: 100%;
+  padding: 10px 14px;
+  font: inherit;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--wmj-gold-ink);
+  background: var(--wmj-gold);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+}
+
+.wmj-primary-btn:hover {
+  filter: brightness(1.04);
+}
+
+.wmj-primary-btn:active {
+  filter: brightness(0.96);
+}
+
+.wmj-primary-btn:focus-visible {
+  outline: 2px solid var(--wmj-ink);
+  outline-offset: 2px;
+}
+
+.wmj-secondary-btn {
+  padding: 5px 12px;
+  font: inherit;
+  color: var(--wmj-ink);
+  background: var(--wmj-surface);
+  border: 1px solid var(--wmj-line);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.wmj-secondary-btn:hover {
+  border-color: var(--wmj-line-2);
+}
+
+.wmj-secondary-btn:active {
+  filter: brightness(0.97);
+}
+
+.wmj-secondary-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.wmj-secondary-btn:focus-visible {
+  outline: 2px solid var(--wmj-gold);
+  outline-offset: 2px;
+}
+
+.wmj-clear-note {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--wmj-ink-2);
+}
+
+.wmj-look-toggle {
+  display: block;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  text-align: left;
+  color: var(--wmj-ink-2);
+  background: none;
+  border: none;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.wmj-look-toggle:hover {
+  color: var(--wmj-ink);
+}
+
+.wmj-look-toggle:focus-visible {
+  outline: 2px solid var(--wmj-gold);
+  outline-offset: 2px;
+}
+
+.wmj-details {
+  margin-top: 14px;
+  border-top: 1px solid var(--wmj-line);
+  padding-top: 10px;
+}
+
+.wmj-details summary {
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+
+.wmj-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.wmj-details summary::before {
+  content: "+";
+  display: inline-block;
+  width: 1em;
+  color: var(--wmj-ink-2);
+}
+
+.wmj-details[open] summary::before {
+  content: "\2212";
+}
+
+.wmj-details summary:focus-visible {
+  outline: 2px solid var(--wmj-gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.wmj-roi-explain {
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--wmj-ink-2);
+}
+
+.wmj-roi-explain p {
+  margin: 0 0 8px;
+}
+
+.wmj-roi-explain strong {
+  color: var(--wmj-ink);
+}
+
+.wmj-formula-label {
+  margin-bottom: 4px !important;
+}
+
+.wmj-formula {
+  padding: 8px 10px;
+  background: var(--wmj-gold-tint);
+  border-radius: 8px;
+  color: var(--wmj-ink);
+  font-variant-numeric: tabular-nums;
+  overflow-x: auto;
+}
+
+.wmj-instagram {
+  margin: 14px 0 0;
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--wmj-ink-2);
+}
+
+.wmj-instagram a {
+  color: var(--wmj-ink);
+  font-weight: 600;
+}
+
+.wmj-instagram a:focus-visible {
+  outline: 2px solid var(--wmj-gold);
+  outline-offset: 2px;
+}
+
+.wmj-footer {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--wmj-line);
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--wmj-ink-3);
+}

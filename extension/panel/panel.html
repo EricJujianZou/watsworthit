@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>WatsWorthIt</title>
+<link rel="icon" href="../icons/icon-32.png">
+<link rel="stylesheet" href="panel.css">
+</head>
+<body class="wmj-panel">
+<h1 class="wmj-panel-title"><img src="../icons/icon-48.png" alt="" width="24" height="24">WatsWorthIt</h1>
+
+<section class="wmj-section wmj-section-first">
+  <div class="wmj-section-head">
+    <h2>About you</h2>
+    <span class="wmj-saved" id="wmj-saved-about" aria-live="polite"></span>
+  </div>
+  <p class="wmj-helper">Used for the year chip and for pay that changes by work term. Nothing you enter leaves this browser.</p>
+
+  <label class="wmj-field">
+    <span class="wmj-field-label">Program</span>
+    <input type="text" id="wmj-program" list="wmj-programs" autocomplete="off">
+  </label>
+  <datalist id="wmj-programs">
+    <option value="Computer Science">
+    <option value="Software Engineering">
+    <option value="Electrical Engineering">
+    <option value="Computer Engineering">
+    <option value="Mechatronics Engineering">
+    <option value="Systems Design Engineering">
+    <option value="Mechanical Engineering">
+    <option value="Management Engineering">
+    <option value="Mathematics">
+    <option value="Statistics">
+    <option value="Data Science">
+    <option value="Computing and Financial Management">
+    <option value="Civil Engineering">
+    <option value="Chemical Engineering">
+    <option value="Environmental Engineering">
+    <option value="Nanotechnology Engineering">
+    <option value="Biomedical Engineering">
+    <option value="Architectural Engineering">
+    <option value="Geological Engineering">
+    <option value="Accounting and Financial Management">
+    <option value="Actuarial Science">
+    <option value="Biochemistry">
+    <option value="Physics">
+    <option value="Kinesiology">
+  </datalist>
+
+  <label class="wmj-field">
+    <span class="wmj-field-label">Current term</span>
+    <select id="wmj-term"></select>
+  </label>
+
+  <label class="wmj-field">
+    <span class="wmj-field-label">Completed work terms</span>
+    <input type="number" id="wmj-completed-terms" min="0" max="6" step="1">
+  </label>
+</section>
+
+<section class="wmj-section">
+  <div class="wmj-section-head">
+    <h2>ROI weights</h2>
+  </div>
+  <p class="wmj-helper">Move a factor up if it matters more to you. Every factor starts at 3.</p>
+
+  <div class="wmj-slider-row">
+    <label class="wmj-slider-label" for="wmj-weight-pay">Pay</label>
+    <input type="range" class="wmj-slider" min="1" max="5" step="1" id="wmj-weight-pay">
+    <output class="wmj-slider-value" for="wmj-weight-pay" id="wmj-weight-pay-value">3</output>
+  </div>
+  <div class="wmj-slider-row">
+    <label class="wmj-slider-label" for="wmj-weight-odds">Odds of getting in</label>
+    <input type="range" class="wmj-slider" min="1" max="5" step="1" id="wmj-weight-odds">
+    <output class="wmj-slider-value" for="wmj-weight-odds" id="wmj-weight-odds-value">3</output>
+  </div>
+  <div class="wmj-slider-row">
+    <label class="wmj-slider-label" for="wmj-weight-level">Level fit</label>
+    <input type="range" class="wmj-slider" min="1" max="5" step="1" id="wmj-weight-level">
+    <output class="wmj-slider-value" for="wmj-weight-level" id="wmj-weight-level-value">3</output>
+  </div>
+  <div class="wmj-slider-row">
+    <label class="wmj-slider-label" for="wmj-weight-year">Year requirement</label>
+    <input type="range" class="wmj-slider" min="1" max="5" step="1" id="wmj-weight-year">
+    <output class="wmj-slider-value" for="wmj-weight-year" id="wmj-weight-year-value">3</output>
+  </div>
+  <div class="wmj-slider-row">
+    <label class="wmj-slider-label" for="wmj-weight-repeat">Repeat employer</label>
+    <input type="range" class="wmj-slider" min="1" max="5" step="1" id="wmj-weight-repeat">
+    <output class="wmj-slider-value" for="wmj-weight-repeat" id="wmj-weight-repeat-value">3</output>
+  </div>
+</section>
+
+<section class="wmj-section">
+  <button type="button" class="wmj-primary-btn" id="wmj-show">Show What's Worth It</button>
+</section>
+
+<section class="wmj-section">
+  <button type="button" class="wmj-secondary-btn" id="wmj-clear-cache">Clear saved readings</button>
+  <p class="wmj-helper">Forgets every posting the extension has read. Use it if something looks out of date.</p>
+</section>
+
+<section class="wmj-section">
+  <button type="button" class="wmj-look-toggle" id="wmj-look-toggle"></button>
+</section>
+
+<details class="wmj-details">
+  <summary>How is ROI calculated?</summary>
+  <div class="wmj-roi-explain">
+    <p>ROI ranks each posting by how much pay you can expect for the effort of applying, given your chances of getting in.</p>
+    <p><strong>Pay.</strong> The hourly pay in CAD, read from Compensation and Benefits. If a range is given, the middle of it is used. A posting with no stated pay gets the median pay of the postings on the board that do state it. Unpaid postings get 0.</p>
+    <p><strong>Odds of getting in.</strong> Openings divided by the applications the posting is expected to have by its deadline. Every posting starts out assumed to have 80 applications per opening, since most co-op postings get between 80 and 500. As days pass, the real count takes over. Employer Student Direct doesn't show application counts, so those postings always use 80.</p>
+    <p><strong>Level fit.</strong> Your level comes from your completed work terms: 0 or 1 is Junior, 2 or 3 is Intermediate, 4 or more is Senior. A posting open to your level gets 1. One level away gets 0.8 and two levels away gets 0.5.</p>
+    <p><strong>Year requirement.</strong> If a posting asks for a higher year than you're in, it gets 0.15 when that year is required and 0.6 when it's only preferred. Otherwise it gets 1.</p>
+    <p><strong>Repeat employer.</strong> You can only accept one offer, so an organization's second best posting gets 0.5 and each one after that gets 0.25.</p>
+    <p><strong>Your weights.</strong> Each factor is raised to the power of its weight divided by 3. At 3 a factor counts exactly as described above, and at 5 it pulls about 1.7 times as hard. At 1 it counts a third as much.</p>
+    <p class="wmj-formula-label"><strong>Formula</strong></p>
+    <p class="wmj-formula">value = pay<sup>a</sup> &times; odds<sup>b</sup> &times; level fit<sup>c</sup> &times; year<sup>d</sup> &times; repeat employer<sup>e</sup></p>
+    <p>where a to e are each slider's weight &divide; 3</p>
+    <p><strong>From value to ROI.</strong> Pay &times; odds gives your expected pay per application. ROI puts that on a fixed scale: 0 is minimum wage at 1 in 500, and 100 is $50/hr at 1 in 50. Each doubling of expected pay adds the same number of points. ROI doesn't compare postings with each other. If the best posting on a board scores 40, that board is weak and you may do better applying outside WaterlooWorks.</p>
+    <p>Note: company mission and prestige are not factored into ROI.</p>
+  </div>
+</details>
+
+<p class="wmj-instagram">Questions or found a bug? DM <a href="https://www.instagram.com/sleppyeric/" target="_blank" rel="noopener">@sleppyeric</a> on Instagram and he'll buy you a coffee.</p>
+
+<footer class="wmj-footer">Reads WaterlooWorks in your own tab. Not affiliated with the University of Waterloo.</footer>
+
+<script type="module" src="panel.js"></script>
+</body>
+</html>

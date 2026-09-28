@@ -1,0 +1,240 @@
+{
+  "_comment": "Word lists for the pay parser. Kept identical to DEFAULT_RULES in src/parse/pay.js; tests/pay.test.js checks the two match.",
+  "sectionHeadings": [
+    "compensation and benefits",
+    "compensation & benefits",
+    "compensation",
+    "salary",
+    "pay rate",
+    "wage"
+  ],
+  "currencyWords": {
+    "USD": [
+      "usd",
+      "us$",
+      "u.s. dollars",
+      "us dollars",
+      "american dollars",
+      "u.s.$"
+    ],
+    "CAD": [
+      "cad",
+      "c$",
+      "cdn",
+      "can$",
+      "ca$",
+      "canadian dollars"
+    ],
+    "EUR": [
+      "eur",
+      "euro",
+      "euros",
+      "€"
+    ],
+    "GBP": [
+      "gbp",
+      "£",
+      "pounds sterling"
+    ],
+    "CNY": [
+      "rmb",
+      "cny",
+      "yuan",
+      "¥"
+    ],
+    "JPY": [
+      "jpy",
+      "yen"
+    ],
+    "INR": [
+      "inr",
+      "rupees",
+      "₹"
+    ],
+    "AUD": [
+      "aud",
+      "a$",
+      "australian dollars"
+    ],
+    "CHF": [
+      "chf",
+      "swiss francs"
+    ],
+    "HKD": [
+      "hkd",
+      "hk$"
+    ],
+    "SGD": [
+      "sgd",
+      "s$",
+      "singapore dollars"
+    ]
+  },
+  "periodWords": {
+    "hour": [
+      "/hour",
+      "/hr",
+      "/h",
+      "per hour",
+      "an hour",
+      "each hour",
+      "hourly",
+      "p/h",
+      "ph"
+    ],
+    "day": [
+      "/day",
+      "per day",
+      "a day",
+      "daily",
+      "per diem"
+    ],
+    "week": [
+      "/week",
+      "/wk",
+      "per week",
+      "a week",
+      "weekly"
+    ],
+    "month": [
+      "/month",
+      "/mo",
+      "per month",
+      "a month",
+      "monthly"
+    ],
+    "year": [
+      "/year",
+      "/yr",
+      "per year",
+      "a year",
+      "annually",
+      "per annum",
+      "annual",
+      "yearly"
+    ]
+  },
+  "frequencyWords": [
+    "bi-weekly",
+    "biweekly",
+    "bi weekly",
+    "semi-monthly",
+    "semimonthly",
+    "every two weeks",
+    "every 2 weeks",
+    "twice a month"
+  ],
+  "unpaidWords": [
+    "unpaid",
+    "volunteer",
+    "honorarium"
+  ],
+  "ignoreWords": [
+    "relocation",
+    "housing allowance",
+    "housing stipend",
+    "signing bonus",
+    "sign on bonus",
+    "sign-on bonus",
+    "series a",
+    "series b",
+    "series c",
+    "series d",
+    "in funding",
+    "in revenue",
+    "raised",
+    "valuation",
+    "travel allowance",
+    "flight",
+    "per diem allowance"
+  ],
+  "workTermWords": [
+    "work term",
+    "work terms",
+    "co-op term",
+    "coop term"
+  ],
+  "ordinalWords": [
+    "first",
+    "second",
+    "third",
+    "fourth",
+    "fifth",
+    "sixth",
+    "seventh",
+    "eighth"
+  ],
+  "hoursPerWeekDefault": 40,
+  "daysPerWeek": 5,
+  "weeksPerYear": 52,
+  "monthsPerYear": 12,
+  "termWeeksDefault": 16,
+  "numberWords": {
+    "one": 1,
+    "two": 2,
+    "three": 3,
+    "four": 4,
+    "five": 5,
+    "six": 6,
+    "seven": 7,
+    "eight": 8,
+    "nine": 9,
+    "ten": 10,
+    "eleven": 11,
+    "twelve": 12,
+    "thirteen": 13,
+    "fourteen": 14,
+    "fifteen": 15,
+    "sixteen": 16,
+    "seventeen": 17,
+    "eighteen": 18,
+    "twenty": 20
+  },
+  "minHourly": 10,
+  "maxHourly": 250,
+  "magnitude": {
+    "hourBelow": 200,
+    "weekBelow": 2500,
+    "monthBelow": 20000
+  },
+  "notStatedReasons": {
+    "interview": [
+      "tbd",
+      "to be determined",
+      "to be discussed",
+      "discussed at interview",
+      "discussed at the interview",
+      "discussed in interview",
+      "discussed in the interview",
+      "discussed during the interview",
+      "discussed during interview",
+      "disclosed at interview",
+      "disclosed during the interview",
+      "provided at interview",
+      "shared during the interview"
+    ],
+    "competitive": [
+      "competitive"
+    ],
+    "experience": [
+      "commensurate with experience",
+      "depending on experience",
+      "depends on experience",
+      "based on experience",
+      "doe"
+    ],
+    "negotiable": [
+      "negotiable"
+    ]
+  },
+  "payContextWords": [
+    "salary",
+    "pay",
+    "compensation",
+    "wage",
+    "rate",
+    "remuneration",
+    "stipend"
+  ],
+  "maxSectionChars": 2000
+}

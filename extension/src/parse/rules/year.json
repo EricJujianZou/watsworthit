@@ -1,0 +1,27 @@
+{
+  "_comment": "Parsing rules for parse/year.js. Data only, no real posting text.",
+  "termPattern": {
+    "source": "\\b([1-4][AB])\\s*\\+?\\b",
+    "flags": "i"
+  },
+  "yearWordToTerm": {
+    "first year": "1A",
+    "1st year": "1A",
+    "second year": "2A",
+    "2nd year": "2A",
+    "third year": "3A",
+    "3rd year": "3A",
+    "fourth year": "4A",
+    "4th year": "4A",
+    "final year": "4A",
+    "graduating": "4A"
+  },
+  "notFirstYearPhrases": ["not open to first year", "not open to first years"],
+  "notFirstYearTerm": "2A",
+  "workTermCountPattern": {
+    "source": "(?:completed|minimum of|at least)\\s*(one|two|three|four|five|six|\\d+)\\s*work\\s*terms?",
+    "flags": "i"
+  },
+  "wordNumbers": { "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6 },
+  "preferredWords": ["preferred", "an asset", "nice to have", "ideally"]
+}
