@@ -844,85 +844,114 @@ export function getWorkTermRatingReportJson(divId, opts) {
 // mapRatingReport
 // ---------------------------------------------------------------------
 // Maps the raw response of the page's getWorkTermRatingReportJson into the
-// History shape from contract.js ({ byWorkTerm: [{term, share}],
-// programs: [{name, count}] }). Nobody on this project has seen a real
-// response yet (see docs/research/waterlooworks-surface.md), so this
-// guesses at common JSON shapes; correct it against a real response before
-// trusting its numbers again.
+// History shape from contract.js. Confirmed against a live capture on
+// 2026-09-28: the response is { page, sections: [...] }, the same report
+// WaterlooWorks draws on its own Work Term Ratings tab. The sections used
+// here, all at the division level, which is what the charts describe:
+//
+//   type 'table', title 'Hiring History': columns ['', 'Students Hired',
+//     '2023 - Fall', ...], rows [['Employer Organization', name, '2', ...],
+//     ['Employer Division', name, '2', ...]], hires per term as strings
+//   type 'pieChart', title 'Hires by Student Work Term Number...': data
+//     [{name: 'First', y: '26'}, ... {name: 'Sixth +', y: '5'}], percents
+//   type 'barChart', title 'Most Frequently Hired Programs...': categories
+//     [program names] with series[0].data [hire counts]
+//   type 'table', title 'Work Term Ratings Summary': columns ['', ...,
+//     'Average Work Term Satisfaction Rating', 'Number Of Ratings'], rows
+//     for organization, division and all students. Values are 'N/A' below
+//     five ratings.
+//
+// An employer with no report comes back as { missingReportStructure: true }.
+
+const WORK_TERM_NAMES = { first: 1, second: 2, third: 3, fourth: 4, fifth: 5, sixth: 6 };
+
+function stripTags(s) {
+  return typeof s === 'string' ? s.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : '';
+}
+
+function findSection(raw, type, titlePattern) {
+  if (!raw || typeof raw !== 'object' || !Array.isArray(raw.sections)) return null;
+  return raw.sections.find((s) => s && s.type === type && titlePattern.test(stripTags(s.title))) || null;
+}
+
+function toNumber(v) {
+  if (typeof v === 'number') return Number.isFinite(v) ? v : null;
+  if (typeof v === 'string' && v.trim() !== '' && Number.isFinite(Number(v))) return Number(v);
+  return null;
+}
+
+/** The division row of a report table, falling back to the organization row. */
+function reportRows(table) {
+  if (!table || !Array.isArray(table.rows)) return { division: null, organization: null };
+  const find = (re) => table.rows.find((r) => Array.isArray(r) && re.test(String(r[0]))) || null;
+  return { division: find(/division/i), organization: find(/organi[sz]ation/i) };
+}
 
 export function mapRatingReport(raw) {
-  const empty = { byWorkTerm: [], programs: [] };
-  if (!raw || typeof raw !== 'object') return empty;
-  const termEntries = pickArray(raw, ['byWorkTerm', 'workTerms', 'termBreakdown', 'terms']);
-  const programEntries = pickArray(raw, ['programs', 'byProgram', 'faculties', 'programBreakdown']);
-  return {
-    byWorkTerm: normalizeTermEntries(termEntries),
-    programs: normalizeProgramEntries(programEntries),
-  };
+  const empty = { byWorkTerm: [], programs: [], hired: null, terms: null };
+  if (!raw || typeof raw !== 'object' || !Array.isArray(raw.sections)) return empty;
+
+  let hired = null;
+  let terms = null;
+  const hiring = findSection(raw, 'table', /hiring history/i);
+  if (hiring && Array.isArray(hiring.columns)) {
+    const { division, organization } = reportRows(hiring);
+    const row = division || organization;
+    const firstTerm = hiring.columns.findIndex((c) => /\d{4}/.test(String(c)));
+    if (row && firstTerm > 0) {
+      const counts = row.slice(firstTerm).map(toNumber);
+      terms = counts.length;
+      hired = counts.reduce((sum, n) => sum + (n || 0), 0);
+    }
+  }
+
+  const byWorkTerm = [];
+  const termPie = findSection(raw, 'pieChart', /work term number/i);
+  if (termPie && Array.isArray(termPie.data)) {
+    let total = 0;
+    const entries = [];
+    for (const d of termPie.data) {
+      const word = String((d && d.name) || '').toLowerCase().match(/[a-z]+/);
+      const term = word ? WORK_TERM_NAMES[word[0]] : null;
+      const y = toNumber(d && d.y);
+      if (!term || y == null || y < 0) continue;
+      entries.push({ term, y });
+      total += y;
+    }
+    if (total > 0) for (const e of entries.sort((a, b) => a.term - b.term)) byWorkTerm.push({ term: e.term, share: e.y / total });
+  }
+
+  const programs = [];
+  const programBar = findSection(raw, 'barChart', /hired programs/i);
+  if (programBar && Array.isArray(programBar.categories) && Array.isArray(programBar.series) && programBar.series[0]) {
+    const counts = programBar.series[0].data || [];
+    programBar.categories.forEach((name, i) => {
+      const count = toNumber(counts[i]);
+      if (typeof name === 'string' && name.trim() && count != null && count > 0) programs.push({ name: name.trim(), count });
+    });
+    programs.sort((a, b) => b.count - a.count);
+  }
+
+  return { byWorkTerm, programs, hired, terms };
 }
 
-/** Pure: a single overall rating number out of a rating report or postingData, if either carries one recognisable. Unconfirmed shape, like the rest of the rating report. */
-export function deriveRating(raw, postingData) {
-  const fromRaw = raw && typeof raw === 'object' ? firstNumber(raw, ['rating', 'overallRating', 'employerRating', 'score']) : null;
-  if (fromRaw != null) return fromRaw;
-  if (postingData && typeof postingData === 'object') {
-    const fromData = firstNumber(postingData, ['rating', 'overallRating', 'employerRating', 'score']);
-    if (fromData != null) return fromData;
+/** Pure: { score, count } from the report's ratings table, division first, or null below five ratings. */
+export function readRating(raw) {
+  const table = findSection(raw, 'table', /work term ratings/i);
+  if (!table || !Array.isArray(table.columns)) return null;
+  const scoreCol = table.columns.findIndex((c) => /average/i.test(String(c)));
+  const countCol = table.columns.findIndex((c) => /number of ratings/i.test(String(c)));
+  if (scoreCol < 0) return null;
+  const { division, organization } = reportRows(table);
+  for (const row of [division, organization]) {
+    const score = row ? toNumber(row[scoreCol]) : null;
+    if (score != null) return { score, count: countCol >= 0 ? toNumber(row[countCol]) : null };
   }
   return null;
 }
 
-function pickArray(obj, keys) {
-  for (const key of keys) {
-    if (Array.isArray(obj[key])) return obj[key];
-  }
-  return [];
-}
-
-function normalizeTermEntries(entries) {
-  const counts = new Map();
-  let total = 0;
-  for (const entry of entries) {
-    if (!entry || typeof entry !== 'object') continue;
-    const term = firstNumber(entry, ['term', 'workTerm', 'termNumber', 'workTermNumber']);
-    const count = firstNumber(entry, ['count', 'hires', 'total', 'value']);
-    if (term == null || count == null || count < 0) continue;
-    counts.set(term, (counts.get(term) || 0) + count);
-    total += count;
-  }
-  if (total <= 0) return [];
-  return Array.from(counts.entries())
-    .sort((a, b) => a[0] - b[0])
-    .map(([term, count]) => ({ term, share: count / total }));
-}
-
-function normalizeProgramEntries(entries) {
-  const counts = new Map();
-  for (const entry of entries) {
-    if (!entry || typeof entry !== 'object') continue;
-    const name = firstString(entry, ['name', 'program', 'faculty', 'programName']);
-    const count = firstNumber(entry, ['count', 'hires', 'total', 'value']);
-    if (!name || count == null || count < 0) continue;
-    counts.set(name, (counts.get(name) || 0) + count);
-  }
-  return Array.from(counts.entries())
-    .sort((a, b) => b[1] - a[1])
-    .map(([name, count]) => ({ name, count }));
-}
-
-function firstNumber(obj, keys) {
-  for (const key of keys) {
-    const v = obj[key];
-    if (typeof v === 'number' && !Number.isNaN(v)) return v;
-    if (typeof v === 'string' && v.trim() !== '' && !Number.isNaN(Number(v))) return Number(v);
-  }
-  return null;
-}
-
-function firstString(obj, keys) {
-  for (const key of keys) {
-    const v = obj[key];
-    if (typeof v === 'string' && v.trim() !== '') return v.trim();
-  }
-  return null;
+/** Pure: the average work term rating out of 10, or null. */
+export function deriveRating(raw) {
+  const r = readRating(raw);
+  return r ? r.score : null;
 }

@@ -12,7 +12,7 @@
 // the same line ("Application Deadline: Oct 2, 2026") is a single field
 // instead. Correct this the first time a real posting overview is read.
 
-import { mapRatingReport, deriveRating } from './ww.js';
+import { mapRatingReport, readRating } from './ww.js';
 
 const COMPANY_FIELD_PATTERN = /company|organization|division|employer|website|address/i;
 
@@ -110,9 +110,11 @@ export function buildPostingDetail(overviewHtml, postingData, ratingRaw) {
   }
 
   const history = ratingRaw ? mapRatingReport(ratingRaw) : null;
-  const rating = deriveRating(ratingRaw, postingData);
+  const rated = readRating(ratingRaw);
+  const rating = rated ? rated.score : null;
+  const ratingCount = rated ? rated.count : null;
 
-  return { sections, companyFields, applicationFields, history, rating };
+  return { sections, companyFields, applicationFields, history, rating, ratingCount };
 }
 
 // Employer Student Direct postings usually say "Application Delivery: Website"

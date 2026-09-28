@@ -59,7 +59,9 @@ export const MESSAGE_TAG = 'wmj';
  *
  * @typedef {Object} History
  * @property {{term:number, share:number}[]} byWorkTerm   term 1..6, shares sum to 1
- * @property {{name:string, count:number}[]} programs
+ * @property {{name:string, count:number}[]} programs   most hired programs, by hires
+ * @property {number|null} [hired]   division hires across the report's terms
+ * @property {number|null} [terms]   how many terms the report covers, nine as of 2026-09
  *
  * @typedef {Object} JobFacts
  * @property {string} jobId

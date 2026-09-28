@@ -823,19 +823,29 @@ export function createOverlay(host, api) {
     if (detail === 'error') return `<p class="prose">Could not read this posting.</p>`;
     const history = detail.history;
     const rating = detail.rating;
+    const hasHired = history && typeof history.hired === 'number';
+    const hasTerms = history && Array.isArray(history.byWorkTerm) && history.byWorkTerm.length;
     let chartSection;
-    if (history && Array.isArray(history.byWorkTerm) && history.byWorkTerm.length) {
-      const max = Math.max(0.0001, ...history.byWorkTerm.map((t) => t.share));
-      const bars = history.byWorkTerm
-        .map((t) => `<i style="height:${((t.share / max) * 100).toFixed(1)}%" title="Work term ${t.term}: ${Math.round(t.share * 100)}%"></i>`)
-        .join('');
-      const labels = history.byWorkTerm.map((t) => `<span>WT ${t.term}</span>`).join('');
-      chartSection = `<section class="sec"><h3>Co-op students hired, by work term</h3>
-        <div class="cols" role="img" aria-label="Share of past hires by work term">
-          <span class="ax top num">${Math.round(max * 100)}%</span><span class="ax bot num">0%</span><span class="gl"></span>${bars}
+    if (hasHired || hasTerms) {
+      const span = history.terms ? `the last ${history.terms} terms` : 'past terms';
+      const hiredLine = !hasHired
+        ? ''
+        : history.hired > 0
+          ? `<p class="prose"><b class="num">${history.hired}</b> co-op ${history.hired === 1 ? 'student' : 'students'} hired in ${span}.</p>`
+          : `<p class="prose">No co-op students hired in ${span}.</p>`;
+      let bars = '';
+      if (hasTerms) {
+        const max = Math.max(0.0001, ...history.byWorkTerm.map((t) => t.share));
+        const cols = history.byWorkTerm
+          .map((t) => `<i style="height:${((t.share / max) * 100).toFixed(1)}%" title="Work term ${t.term}: ${Math.round(t.share * 100)}%"></i>`)
+          .join('');
+        const labels = history.byWorkTerm.map((t) => `<span>WT ${t.term}</span>`).join('');
+        bars = `<div class="cols" role="img" aria-label="Share of past hires by work term">
+          <span class="ax top num">${Math.round(max * 100)}%</span><span class="ax bot num">0%</span><span class="gl"></span>${cols}
         </div>
-        <div class="xl">${labels}</div>
-      </section>`;
+        <div class="xl">${labels}</div>`;
+      }
+      chartSection = `<section class="sec"><h3>Co-op students hired${hasTerms ? ', by work term' : ''}</h3>${hiredLine}${bars}</section>`;
     } else {
       chartSection = `<section class="sec"><h3>Co-op students hired</h3><p class="prose">No hiring history on file for this employer.</p></section>`;
     }
@@ -847,7 +857,7 @@ export function createOverlay(host, api) {
     }
     const ratingBlock =
       rating != null
-        ? `<div class="rating"><b>${rating.toFixed(1)}</b><span>out of 10, from past co-op students.</span></div>`
+        ? `<div class="rating"><b>${rating.toFixed(1)}</b><span>out of 10, from ${detail.ratingCount ? `${detail.ratingCount} ratings by ` : ''}past co-op students.</span></div>`
         : `<div class="rating"><span>Not enough students have rated this employer yet.</span></div>`;
     return chartSection + programsSection + ratingBlock;
   }
