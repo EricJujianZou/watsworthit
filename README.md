@@ -59,7 +59,7 @@ This repo is public so you can read exactly what the extension does in your Wate
 - It reads WaterlooWorks from inside your browser, using the session you're already logged in with. It never sees your password.
 - It only runs on `waterlooworks.uwaterloo.ca` and does nothing on any other site.
 - The postings it reads, your marks and your settings are saved in your browser's extension storage on your own computer. There's no account and no server of its own.
-- The only thing it sends anywhere is an anonymous count: when it's installed, when it reads a job board, when you mark a posting, and once a day when you use it. Each one carries a random install ID and the version number, never anything about a posting, a search or a setting. That code is in [`extension/src/background.js`](extension/src/background.js).
+- The only thing it sends anywhere is an anonymous count: when it's installed, when it reads a job board, when you mark a posting, once a day when you use it, and once a day if WaterlooWorks changes its page and the extension can't read it. Each one carries a random install ID, the version number, the install date and your browser's language setting, never anything about a posting, a search or a setting. That code is in [`extension/src/background.js`](extension/src/background.js).
 
 The full policy is at [watsworthit.ugmi.ca/privacy](https://watsworthit.ugmi.ca/privacy/).
 
